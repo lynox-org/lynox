@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Signup Demo</title>
+  <style>
+    body { font-family: sans-serif; margin: 2rem; }
+    input, button { margin: 0.5rem 0; padding: 0.5rem; width: 100%; max-width: 300px; }
+    .response { margin-top: 1rem; color: green; }
+    .error { color: red; }
+  </style>
+</head>
+<body>
+  <h2>Signup Form</h2>
+
+  <input type="text" id="name" placeholder="Name" />
+  <input type="email" id="email" placeholder="Email" />
+  <input type="password" id="password" placeholder="Password" />
+  <button onclick="signup()">Sign Up</button>
+
+  <div id="result" class="response"></div>
+
+  <script>
+    async function signup() {
+      const name = document.getElementById("name").value;
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      const resultDiv = document.getElementById("result");
+      resultDiv.textContent = "";
+
+      const res = await fetch("http://localhost:3000/signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ name, email, password })
+      });
+
+      if (res.status === 201) {
+        const data = await res.json();
+        resultDiv.textContent = "Signup successful! User ID: " + data.id;
+        resultDiv.className = "response";
+      } else if (res.status === 409) {
+        resultDiv.textContent = "Email already exists.";
+        resultDiv.className = "error";
+      } else if (res.status === 422) {
+        resultDiv.textContent = "Missing fields.";
+        resultDiv.className = "error";
+      } else {
+        resultDiv.textContent = "Server error. Try again later.";
+        resultDiv.className = "error";
+      }
+    }
+  </script>
+</body>
+</html>
